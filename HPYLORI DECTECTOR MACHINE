@@ -1,0 +1,124 @@
+import json
+import os
+import random
+import time
+
+class HPyloriDetector:
+    def __init__(self, filename="h_pylori_results.json"):
+        self.filename = filename
+        self.results = []
+        self.load_results()
+
+    def load_results(self):
+        """Load previous results from JSON file."""
+        if os.path.exists(self.filename):
+            try:
+                with open(self.filename, 'r') as file:
+                    self.results = json.load(file)
+            except json.JSONDecodeError:
+                print("Error loading results. Starting with an empty database.")
+                self.results = []
+        else:
+            print("No results file found. Starting with an empty database.")
+
+    def save_results(self):
+        """Save results to JSON file."""
+        try:
+            with open(self.filename, 'w') as file:
+                json.dump(self.results, file, indent=4)
+            print("Results saved successfully.")
+        except Exception as e:
+            print(f"Error saving results: {e}")
+
+    def simulate_breath_sample(self):
+        """Simulate breath sample data (¹³CO₂/¹²CO₂ ratio)."""
+        # Normal range for ¹³CO₂/¹²CO₂ ratio in breath (arbitrary units for simulation)
+        baseline_ratio = random.uniform(0.01, 0.05)  # Natural abundance
+        # Simulate post-urea sample: H. pylori increases ¹³CO₂ if present
+        post_urea_ratio = baseline_ratio + random.uniform(0.0, 0.1) if random.choice([True, False]) else baseline_ratio
+        return baseline_ratio, post_urea_ratio
+
+    def calculate_dob(self, baseline_ratio, post_urea_ratio):
+        """Calculate Delta Over Baseline (DOB) in parts per thousand (‰)."""
+        # DOB = [(post_urea_ratio / baseline_ratio - 1) * 1000]
+        dob = ((post_urea_ratio / baseline_ratio) - 1) * 1000
+        return round(dob, 2)
+
+    def interpret_result(self, dob):
+        """Interpret DOB value to determine H. pylori infection status."""
+        threshold = 4.0  # Standard threshold for positivity (‰)
+        return "Positive" if dob >= threshold else "Negative"
+
+    def run_test(self, patient_id):
+        """Run a simulated H. pylori breath test."""
+        print(f"\nRunning H. pylori test for Patient ID: {patient_id}")
+        print("Collecting baseline breath sample...")
+        time.sleep(2)  # Simulate sample collection delay
+        baseline_ratio, post_urea_ratio = self.simulate_breath_sample()
+
+        print("Waiting 15 minutes for urea metabolism...")
+        time.sleep(3)  # Simulate waiting period (shortened for demo)
+
+        print("Collecting post-urea breath sample...")
+        time.sleep(2)  # Simulate sample collection delay
+
+        dob = self.calculate_dob(baseline_ratio, post_urea_ratio)
+        status = self.interpret_result(dob)
+
+        result = {
+            "patient_id": patient_id,
+            "baseline_ratio": baseline_ratio,
+            "post_urea_ratio": post_urea_ratio,
+            "dob": dob,
+            "status": status,
+            "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+        }
+        self.results.append(result)
+        self.save_results()
+
+        print("\n--- Test Results ---")
+        print(f"Patient ID: {patient_id}")
+        print(f"Baseline ¹³CO₂/¹²CO₂ Ratio: {baseline_ratio:.4f}")
+        print(f"Post-Urea ¹³CO₂/¹²CO₂ Ratio: {post_urea_ratio:.4f}")
+        print(f"DOB: {dob} ‰")
+        print(f"H. pylori Status: {status}")
+        print("------------------")
+
+    def view_results(self):
+        """Display all test results."""
+        if not self.results:
+            print("No test results available.")
+            return
+        print("\n--- All Test Results ---")
+        for result in self.results:
+            print(f"Patient ID: {result['patient_id']}, DOB: {result['dob']} ‰, "
+                  f"Status: {result['status']}, Time: {result['timestamp']}")
+        print("-----------------------")
+
+def main():
+    detector = HPyloriDetector()
+
+    while True:
+        print("\n=== H. pylori Detector Machine ===")
+        print("1. Run New Test")
+        print("2. View All Results")
+        print("3. Exit")
+        choice = input("Enter your choice (1-3): ")
+
+        if choice == "1":
+            patient_id = input("Enter Patient ID: ")
+            detector.run_test(patient_id)
+
+        elif choice == "2":
+            detector.view_results()
+
+        elif choice == "3":
+            print("Exiting H. pylori detector. Goodbye!")
+            break
+
+        else:
+            print("Invalid choice. Please try again.")
+
+if __name__ == "__main__":
+    main()
+
