@@ -1,0 +1,15 @@
+hyplori dectoter 
+
+
+2 nd day
+
+[
+    {
+        "patient_id": "P001",
+        "baseline_ratio": 0.0321,
+        "post_urea_ratio": 0.0456,
+        "dob": 421.50,
+        "status": "Positive",
+        "timestamp": "2025-07-24 01:15:23"
+    }
+]
