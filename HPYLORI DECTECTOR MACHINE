@@ -95,15 +95,7 @@ class HPyloriDetector:
                   f"Status: {result['status']}, Time: {result['timestamp']}")
         print("-----------------------")
 
-def main():
-    detector = HPyloriDetector()
 
-    while True:
-        print("\n=== H. pylori Detector Machine ===")
-        print("1. Run New Test")
-        print("2. View All Results")
-        print("3. Exit")
-        choice = input("Enter your choice (1-3): ")
 
        
 
